@@ -4,10 +4,13 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.animation.BounceInterpolator
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -77,8 +80,7 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 return true
             }
             val places = markers.mapNotNull { marker ->
-                if (marker.title?.isEmpty() == (false
-                        ?: true) && marker.snippet?.isEmpty() == false ?: true
+                if (marker.title?.isEmpty() == false && marker.snippet?.isEmpty() == false
                 ) {
                     Place(
                         marker.title!!,
@@ -150,15 +152,42 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
 
-
             val marker = mMap.addMarker(
-                MarkerOptions().position(latLng).title(title).snippet(description).icon(customMarker)
+                MarkerOptions().position(latLng).title(title).snippet(description)
+                    .icon(customMarker)
             )
             if (marker != null) {
                 markers.add(marker)
+                dropPinEffect(marker)
             }
             dialog.dismiss()
         }
 
+    }
+
+    private fun dropPinEffect(marker: Marker) {
+        val handler = Handler()
+        val start = SystemClock.uptimeMillis()
+        val duration: Long = 1500
+
+        // Use the bounce interpolator
+        val interpolator = BounceInterpolator()
+
+        // Animate marker with a bounce updating its position every 15ms
+        handler.post(object : Runnable {
+            override fun run() {
+                val elapsed = SystemClock.uptimeMillis() - start
+                val t =
+                    Math.max(1 - interpolator.getInterpolation(elapsed.toFloat() / duration), 0f)
+                // Set the anchor
+                marker.setAnchor(0.5f, 1.0f + 14 * t)
+                if (t > 0.0) {
+                    // Post this event again 15ms from now.
+                    handler.postDelayed(this, 15)
+                } else { // done elapsing, show window
+                    marker.showInfoWindow()
+                }
+            }
+        })
     }
 }
