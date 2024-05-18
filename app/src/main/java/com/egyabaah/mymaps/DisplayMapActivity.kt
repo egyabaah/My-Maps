@@ -12,6 +12,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.egyabaah.mymaps.databinding.ActivityDisplayMapBinding
 import com.egyabaah.mymaps.models.UserMap
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLngBounds
 
 private const val TAG = "DisplayMapActivity"
@@ -20,6 +22,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityDisplayMapBinding
     private  lateinit var userMap: UserMap
+    private lateinit var customMarker: BitmapDescriptor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +32,8 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         userMap = intent.getSerializableExtra(EXTRA_USER_MAP) as UserMap
         supportActionBar?.title = userMap.title
+        customMarker = BitmapDescriptorFactory.fromResource(R.drawable.blue_custom_map_marker)
+        
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -55,7 +60,7 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
         for (place in userMap.places){
             val latLng = LatLng(place.latitude, place.longitude)
             boundsBuilder.include(latLng)
-            mMap.addMarker(MarkerOptions().position(latLng).title(place.title).snippet(place.description))
+            mMap.addMarker(MarkerOptions().position(latLng).title(place.title).snippet(place.description).icon(customMarker))
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 1000, 1000, 0))
     }

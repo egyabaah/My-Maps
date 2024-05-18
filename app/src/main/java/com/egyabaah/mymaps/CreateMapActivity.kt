@@ -3,7 +3,6 @@ package com.egyabaah.mymaps
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,19 +11,22 @@ import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-
+import com.egyabaah.mymaps.databinding.ActivityCreateMapBinding
+import com.egyabaah.mymaps.models.Place
+import com.egyabaah.mymaps.models.UserMap
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.egyabaah.mymaps.databinding.ActivityCreateMapBinding
-import com.egyabaah.mymaps.models.Place
-import com.egyabaah.mymaps.models.UserMap
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
+
 
 private const val TAG = "CreateMapActivity"
 
@@ -33,6 +35,7 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityCreateMapBinding
     private var markers: MutableList<Marker> = mutableListOf()
+    private lateinit var customMarker: BitmapDescriptor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +44,8 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         supportActionBar?.title = intent.getStringExtra(EXTRA_MAP_TITLE)
+
+        customMarker = BitmapDescriptorFactory.fromResource(R.drawable.blue_custom_map_marker)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -144,8 +149,10 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 return@setOnClickListener
             }
 
+
+
             val marker = mMap.addMarker(
-                MarkerOptions().position(latLng).title(title).snippet(description)
+                MarkerOptions().position(latLng).title(title).snippet(description).icon(customMarker)
             )
             if (marker != null) {
                 markers.add(marker)
