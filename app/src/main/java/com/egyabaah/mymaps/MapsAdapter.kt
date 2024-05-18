@@ -27,7 +27,9 @@ class MapsAdapter(val context: Context, val userMaps: List<UserMap>, val onClick
             onClickListener.onItemClick(position)
         }
         val textViewTitle = holder.itemView.findViewById<TextView>(R.id.tvMapTitle)
+        val textViewPlacesCount = holder.itemView.findViewById<TextView>(R.id.tvPlacesCount)
         textViewTitle.text = userMap.title
+        textViewPlacesCount.text = userMap.places.size.toString()
     }
 
     override fun getItemCount() = userMaps.size
