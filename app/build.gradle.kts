@@ -36,6 +36,8 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        //    https://stackoverflow.com/a/74692390/25119769
+        buildConfig = true
     }
 }
 
