@@ -5,12 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.egyabaah.mymaps.models.UserMap
 
 private const val TAG = "MapsAdapter"
-class MapsAdapter(val context: Context, val userMaps: List<UserMap>, val onClickListener : OnClickListener) : RecyclerView.Adapter<MapsAdapter.ViewHolder>() {
+class MapsAdapter (val context: Context, val userMaps: List<UserMap>, val onClickListener : OnClickListener) : RecyclerView.Adapter<MapsAdapter.ViewHolder>(), Filterable {
+    private val filteredUserMaps : MutableList<UserMap> = userMaps.toMutableList()
+//    private val filteredUserMaps : List<UserMap> = userMaps.toMutableList()
 
     interface OnClickListener {
         fun onItemClick (position: Int)
@@ -21,7 +25,7 @@ class MapsAdapter(val context: Context, val userMaps: List<UserMap>, val onClick
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val userMap = userMaps[position]
+        val userMap = filteredUserMaps[position]
         holder.itemView.setOnClickListener{
             Log.i(TAG, "Tapped on position $position")
             onClickListener.onItemClick(position)
@@ -32,11 +36,47 @@ class MapsAdapter(val context: Context, val userMaps: List<UserMap>, val onClick
         textViewPlacesCount.text = userMap.places.size.toString()
     }
 
-    override fun getItemCount() = userMaps.size
+    override fun getItemCount() = filteredUserMaps.size
 
 
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+
+    }
+
+    override fun getFilter(): Filter {
+        return userMapFilter
+    }
+
+    private val userMapFilter = object : Filter() {
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            val filteredList : MutableList<UserMap> = mutableListOf()
+            if (constraint.isNullOrEmpty()){
+                filteredList.addAll(userMaps)
+            }
+            else{
+                val filterPattern = constraint.toString().trim().lowercase()
+                for (userMap in userMaps){
+                    if (userMap.title.lowercase().contains(filterPattern)){
+                        filteredList.add(userMap)
+                    }
+                }
+            }
+            val results = FilterResults()
+            results.values = filteredList
+            return results
+        }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+            if (results != null) {
+                with (filteredUserMaps) {
+                    clear()
+                    addAll(results.values as List<UserMap>)
+                }
+                notifyDataSetChanged()
+            }
+
+        }
 
     }
 

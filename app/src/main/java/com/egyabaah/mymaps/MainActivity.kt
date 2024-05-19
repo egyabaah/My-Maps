@@ -8,7 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -127,6 +131,34 @@ class MainActivity : AppCompatActivity() {
     private fun getDataFile(context: Context) : File {
         Log.i(TAG, "Getting file from directory ${context.filesDir}")
         return File(context.filesDir, FILENAME)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val menuInflater = menuInflater
+        menuInflater.inflate(R.menu.menu_main_activity, menu)
+
+        val searchItem = menu?.findItem(R.id.miSearch)
+        val searchView : SearchView = searchItem?.actionView as SearchView
+
+        searchView.imeOptions = EditorInfo.IME_ACTION_GO
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(searchText: String?): Boolean {
+                mapAdapter.filter.filter(searchText)
+                return false
+            }
+
+        })
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return super.onOptionsItemSelected(item)
     }
 
 }
