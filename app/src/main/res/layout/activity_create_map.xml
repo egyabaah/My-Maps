@@ -22,6 +22,8 @@
         android:clickable="true"
         android:focusable="true"
         android:foregroundTint="@color/white"
+        app:tint="@color/white"
+        app:backgroundTint="@color/primary_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_mylocation" />
