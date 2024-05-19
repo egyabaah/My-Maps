@@ -1,8 +1,10 @@
 package com.egyabaah.mymaps
 
+import android.Manifest.permission.*
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
@@ -15,10 +17,13 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.egyabaah.mymaps.databinding.ActivityCreateMapBinding
 import com.egyabaah.mymaps.models.Place
 import com.egyabaah.mymaps.models.UserMap
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -29,9 +34,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
+import com.vmadalin.easypermissions.EasyPermissions
+import com.vmadalin.easypermissions.annotations.AfterPermissionGranted
 
 
 private const val TAG = "CreateMapActivity"
+private const val REQUEST_CODE_LOCATION = 125
 
 class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -43,12 +51,15 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var miMapTypeTerrian: MenuItem
     private lateinit var miMapTypeSatellite: MenuItem
     private lateinit var miMapTypeHybrid: MenuItem
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityCreateMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         supportActionBar?.title = intent.getStringExtra(EXTRA_MAP_TITLE)
 
@@ -58,11 +69,13 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
+        binding.fabCurrentLocation.setOnClickListener{
+            getUserLocation()
+        }
         mapFragment.view?.let {
             Snackbar.make(it, "Long press to add a marker!", Snackbar.LENGTH_INDEFINITE)
                 .setAction("OK", {})
-                .setActionTextColor(ContextCompat.getColor(this, android.R.color.white))
+                .setActionTextColor(ContextCompat.getColor(this, android.R.color.white)).show()
         }
     }
 
@@ -234,4 +247,59 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
     }
+
+    @AfterPermissionGranted(REQUEST_CODE_LOCATION)
+    private fun getUserLocation() {
+        if (EasyPermissions.hasPermissions(this, ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION)){
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            // EasyPermission is already handling this, but added here again to remove IDE errors
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+
+                return
+            }
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val lastLocationLatLng = LatLng(location.latitude, location.longitude)
+                    Log.i(TAG, "Last location: $lastLocationLatLng")
+                    mMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(lastLocationLatLng, 10f),
+                        1500,
+                        null
+                    )
+                } else {
+                    Log.i(TAG, "Last location is null")
+                }
+            }.addOnFailureListener { exception ->
+                Log.e(TAG, "Error getting last location", exception)
+            }
+
+        }
+        else{
+            EasyPermissions.requestPermissions(
+                this,
+                "This app requires location permission to access your current location",
+                REQUEST_CODE_LOCATION,
+                ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION
+            )
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//      // EasyPermissions handles the request result.
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
 }
