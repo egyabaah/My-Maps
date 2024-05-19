@@ -5,19 +5,63 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.egyabaah.mymaps.models.UserMap
 
 private const val TAG = "MapsAdapter"
-class MapsAdapter (val context: Context, val userMaps: List<UserMap>, val onClickListener : OnClickListener) : RecyclerView.Adapter<MapsAdapter.ViewHolder>(), Filterable {
-    private val filteredUserMaps : MutableList<UserMap> = userMaps.toMutableList()
-//    private val filteredUserMaps : List<UserMap> = userMaps.toMutableList()
+class MapsAdapter(
+    private val context: Context,
+    initialUserMaps: List<UserMap>,
+    private val onClickListener: OnClickListener,
+) : ListAdapter<UserMap, MapsAdapter.ViewHolder>(UserMapDiffCallback) {
 
-    interface OnClickListener {
-        fun onItemClick (position: Int)
+    object UserMapDiffCallback : DiffUtil.ItemCallback<UserMap>() {
+        override fun areItemsTheSame(oldItem: UserMap, newItem: UserMap): Boolean = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: UserMap, newItem: UserMap): Boolean = oldItem == newItem
+    }
+
+    var fullUserMapList: MutableList<UserMap> = initialUserMaps.toMutableList()
+        set(value) {
+            field = value
+            onListOrFilterChange()
+        }
+
+    var filter: CharSequence = ""
+        set(value) {
+            field = value
+            onListOrFilterChange()
+        }
+
+    init {
+        onListOrFilterChange()
+    }
+
+
+    fun updateData(newUserMaps: List<UserMap>) {
+        fullUserMapList = newUserMaps.toMutableList()
+        onListOrFilterChange()
+    }
+
+    fun addItem(userMap: UserMap) {
+        Log.i(TAG, "Adding Item")
+        fullUserMapList.add(userMap)
+        onListOrFilterChange()
+    }
+
+    fun removeItem(userMap: UserMap) {
+        fullUserMapList.remove(userMap)
+        onListOrFilterChange()
+    }
+
+    fun updateItem(userMap: UserMap) {
+        val index = fullUserMapList.indexOfFirst { it.id == userMap.id }
+        if (index != -1) {
+            fullUserMapList[index] = userMap
+            onListOrFilterChange()
+        }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_user_map, parent, false)
@@ -25,8 +69,8 @@ class MapsAdapter (val context: Context, val userMaps: List<UserMap>, val onClic
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val userMap = filteredUserMaps[position]
-        holder.itemView.setOnClickListener{
+        val userMap = getItem(position)
+        holder.itemView.setOnClickListener {
             Log.i(TAG, "Tapped on position $position")
             onClickListener.onItemClick(position)
         }
@@ -36,48 +80,25 @@ class MapsAdapter (val context: Context, val userMaps: List<UserMap>, val onClic
         textViewPlacesCount.text = userMap.places.size.toString()
     }
 
-    override fun getItemCount() = filteredUserMaps.size
+    private fun onListOrFilterChange() {
+        if (filter.isEmpty()) {
+            submitList(fullUserMapList.toList())
+            Log.i(TAG, "Adding full list filter is Empty")
+            Log.i(TAG, "Applied Filter to List ${fullUserMapList.map { it -> it.id }}")
 
 
-
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-
-    }
-
-    override fun getFilter(): Filter {
-        return userMapFilter
-    }
-
-    private val userMapFilter = object : Filter() {
-        override fun performFiltering(constraint: CharSequence?): FilterResults {
-            val filteredList : MutableList<UserMap> = mutableListOf()
-            if (constraint.isNullOrEmpty()){
-                filteredList.addAll(userMaps)
-            }
-            else{
-                val filterPattern = constraint.toString().trim().lowercase()
-                for (userMap in userMaps){
-                    if (userMap.title.lowercase().contains(filterPattern)){
-                        filteredList.add(userMap)
-                    }
-                }
-            }
-            val results = FilterResults()
-            results.values = filteredList
-            return results
+            return
         }
+        val pattern = filter.toString().lowercase().trim()
+        val filteredList = fullUserMapList.filter { pattern in it.title.lowercase() }
+        Log.i(TAG, "Applied Filter to List ${fullUserMapList.map { it -> it.id }}")
 
-        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-            if (results != null) {
-                with (filteredUserMaps) {
-                    clear()
-                    addAll(results.values as List<UserMap>)
-                }
-                notifyDataSetChanged()
-            }
-
-        }
-
+        submitList(filteredList)
     }
 
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+    interface OnClickListener {
+        fun onItemClick(position: Int)
+    }
 }

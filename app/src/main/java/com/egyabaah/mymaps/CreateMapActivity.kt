@@ -116,7 +116,8 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
                     null
                 }
             }
-            val userMap = intent.getStringExtra(EXTRA_MAP_TITLE)?.let { UserMap(it, places) }
+            val userMapId = intent.getIntExtra(EXTRA_MAP_ID, 0)
+            val userMap = intent.getStringExtra(EXTRA_MAP_TITLE)?.let { UserMap(it, places, userMapId) }
             val data = Intent()
             data.putExtra(EXTRA_USER_MAP, userMap)
             setResult(Activity.RESULT_OK, data)

@@ -30,6 +30,7 @@ private const val TAG = "MainActivity"
 const val EXTRA_USER_MAP = "EXTRA_USER_MAP"
 const val EXTRA_MAP_TITLE = "EXTRA_MAP_TITLE"
 private const val FILENAME = "UserMaps.data"
+const val EXTRA_MAP_ID = "EXTRA_MAP_ID"
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var userMaps: MutableList<UserMap>
@@ -82,7 +83,9 @@ class MainActivity : AppCompatActivity() {
             val userMap = result.data?.getSerializableExtra(EXTRA_USER_MAP) as UserMap
             Log.i(TAG, "onActivityResult with new map title ${userMap.title}")
             userMaps.add(userMap)
-            mapAdapter.notifyItemInserted(userMaps.size-1)
+//            mapAdapter.notifyItemInserted(userMaps.size-1)
+//            mapAdapter.updateData(userMaps)
+            mapAdapter.addItem(userMap)
             serializeUserMaps(this, userMaps)
 
         }
@@ -105,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 
             val intent = Intent(this@MainActivity, CreateMapActivity::class.java)
             intent.putExtra(EXTRA_MAP_TITLE, title)
+            intent.putExtra(EXTRA_MAP_ID, userMaps.size)
             createMapForResultLauncher.launch(intent)
 
             // Navigate to CreateMapActivity
@@ -148,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(searchText: String?): Boolean {
-                mapAdapter.filter.filter(searchText)
+                mapAdapter.filter = searchText!!
                 return false
             }
 
