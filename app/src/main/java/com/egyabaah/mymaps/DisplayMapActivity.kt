@@ -3,6 +3,8 @@ package com.egyabaah.mymaps
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -23,6 +25,11 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityDisplayMapBinding
     private  lateinit var userMap: UserMap
     private lateinit var customMarker: BitmapDescriptor
+    private lateinit var miMapTypeNormal: MenuItem
+    private lateinit var miMapTypeTerrian: MenuItem
+    private lateinit var miMapTypeSatellite: MenuItem
+    private lateinit var miMapTypeHybrid: MenuItem
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +46,54 @@ class DisplayMapActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_map_type, menu)
+        if (menu != null) {
+            miMapTypeNormal = menu.findItem(R.id.miMapTypeNormal)
+            miMapTypeTerrian = menu.findItem(R.id.miMapTypeTerrain)
+            miMapTypeSatellite = menu.findItem(R.id.miMapTypeSatellite)
+            miMapTypeHybrid = menu.findItem(R.id.miMapTypeHybrid)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.miMapTypeNormal){
+            mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+            miMapTypeNormal.isEnabled = false
+            miMapTypeTerrian.isEnabled = true
+            miMapTypeSatellite.isEnabled = true
+            miMapTypeHybrid.isEnabled = true
+
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeTerrain){
+            mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            miMapTypeTerrian.isEnabled = false
+            miMapTypeNormal.isEnabled = true
+            miMapTypeSatellite.isEnabled = true
+            miMapTypeHybrid.isEnabled = true
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeSatellite){
+            mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            miMapTypeSatellite.isEnabled = false
+            miMapTypeNormal.isEnabled = true
+            miMapTypeTerrian.isEnabled = true
+            miMapTypeHybrid.isEnabled = true
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeHybrid){
+            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            miMapTypeHybrid.isEnabled = false
+            miMapTypeSatellite.isEnabled = true
+            miMapTypeNormal.isEnabled = true
+            miMapTypeTerrian.isEnabled = true
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /**

@@ -39,6 +39,10 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityCreateMapBinding
     private var markers: MutableList<Marker> = mutableListOf()
     private lateinit var customMarker: BitmapDescriptor
+    private lateinit var miMapTypeNormal: MenuItem
+    private lateinit var miMapTypeTerrian: MenuItem
+    private lateinit var miMapTypeSatellite: MenuItem
+    private lateinit var miMapTypeHybrid: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +68,13 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_create_map, menu)
+        menuInflater.inflate(R.menu.menu_map_type, menu)
+        if (menu != null) {
+            miMapTypeNormal = menu.findItem(R.id.miMapTypeNormal)
+            miMapTypeTerrian = menu.findItem(R.id.miMapTypeTerrain)
+            miMapTypeSatellite = menu.findItem(R.id.miMapTypeSatellite)
+            miMapTypeHybrid = menu.findItem(R.id.miMapTypeHybrid)
+        }
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -97,6 +108,39 @@ class CreateMapActivity : AppCompatActivity(), OnMapReadyCallback {
             data.putExtra(EXTRA_USER_MAP, userMap)
             setResult(Activity.RESULT_OK, data)
             finish()
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeNormal){
+            mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+            miMapTypeNormal.isEnabled = false
+            miMapTypeTerrian.isEnabled = true
+            miMapTypeSatellite.isEnabled = true
+            miMapTypeHybrid.isEnabled = true
+
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeTerrain){
+            mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            miMapTypeTerrian.isEnabled = false
+            miMapTypeNormal.isEnabled = true
+            miMapTypeSatellite.isEnabled = true
+            miMapTypeHybrid.isEnabled = true
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeSatellite){
+            mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            miMapTypeSatellite.isEnabled = false
+            miMapTypeNormal.isEnabled = true
+            miMapTypeTerrian.isEnabled = true
+            miMapTypeHybrid.isEnabled = true
+            return true
+        }
+        else if (item.itemId == R.id.miMapTypeHybrid){
+            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            miMapTypeHybrid.isEnabled = false
+            miMapTypeSatellite.isEnabled = true
+            miMapTypeNormal.isEnabled = true
+            miMapTypeTerrian.isEnabled = true
             return true
         }
         return super.onOptionsItemSelected(item)
