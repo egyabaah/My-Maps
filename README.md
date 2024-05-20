@@ -27,9 +27,9 @@ The following **extensions** are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://i.imgur.com/a/vMB2Cr9.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://imgur.com/8sqsBo4.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
-GIF created with Windows snipping tool and [EZGIF](https://ezgif.com/)..
+GIF created with Windows snipping tool and [EZGIF](https://ezgif.com/).
 
 ## Notes
 TODO: Replace file storage with database later
@@ -39,7 +39,7 @@ Describe any challenges encountered while building the app.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2024 Emmanuel Gyabaah
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
