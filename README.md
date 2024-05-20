@@ -27,7 +27,7 @@ The following **extensions** are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://i.imgur.com/WeYXvTx.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://i.imgur.com/a/vMB2Cr9.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with Windows snipping tool and [EZGIF](https://ezgif.com/)..
 
